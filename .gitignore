@@ -1,0 +1,17 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# .NET
+**/bin/
+**/obj/
+.vs/
+*.user
+*.suo
+
+# VS Code
+.vscode/
+
+# Development settings
+appsettings.Development.json
