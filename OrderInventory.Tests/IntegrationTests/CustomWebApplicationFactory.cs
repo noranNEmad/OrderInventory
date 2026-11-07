@@ -1,4 +1,4 @@
-
+using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -18,6 +18,18 @@ public class CustomWebApplicationFactory
     protected override void ConfigureWebHost(
         IWebHostBuilder builder)
     {
+        builder.ConfigureAppConfiguration((context, config) =>
+        {
+            var testSettings = new Dictionary<string, string?>
+            {
+                ["Jwt:Key"] = "ThisIsATestSecretKeyForIntegrationTestsOnly123456",
+                ["Jwt:Issuer"] = "OrderInventory.Tests",
+                ["Jwt:Audience"] = "OrderInventory.Tests"
+            };
+
+            config.AddInMemoryCollection(testSettings);
+        });
+
         builder.ConfigureServices(services =>
         {
             services.RemoveAll<AppDbContext>();

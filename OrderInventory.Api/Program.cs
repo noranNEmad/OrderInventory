@@ -11,6 +11,7 @@ using System.Text;
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,14 +52,6 @@ builder.Services
     .AddDefaultTokenProviders();
 
 // JWT Authentication
-var jwtOptions = builder.Configuration
-    .GetSection(JwtOptions.SectionName)
-    .Get<JwtOptions>()!;
-
-var jwtKey = builder.Configuration["Jwt:Key"]
-    ?? throw new InvalidOperationException(
-        "JWT Key is not configured.");
-
 builder.Services
     .AddAuthentication(options =>
     {
@@ -71,8 +64,17 @@ builder.Services
         options.DefaultScheme =
             JwtBearerDefaults.AuthenticationScheme;
     })
-    .AddJwtBearer(options =>
+    .AddJwtBearer();
+
+builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+    .Configure<IOptions<JwtOptions>>((options, jwtOptionsAccessor) =>
     {
+        var jwtOptions = jwtOptionsAccessor.Value;
+        var key = !string.IsNullOrWhiteSpace(jwtOptions.Key)
+            ? jwtOptions.Key
+            : builder.Configuration["Jwt:Key"]
+                ?? throw new InvalidOperationException("JWT Key is not configured.");
+
         options.TokenValidationParameters =
             new TokenValidationParameters
             {
@@ -86,7 +88,7 @@ builder.Services
 
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(jwtKey)),
+                    Encoding.UTF8.GetBytes(key)),
 
                 ClockSkew = TimeSpan.Zero
             };
