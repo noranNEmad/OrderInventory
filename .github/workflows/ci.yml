@@ -1,4 +1,3 @@
-
 name: OrderInventory CI
 
 on:
@@ -9,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  packages: write
 
 jobs:
   build-and-test:
@@ -49,5 +49,23 @@ jobs:
           ConnectionStrings__TestConnection: "Server=localhost,1433;Database=OrderInventoryIntegrationTestDb;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True;"
         run: dotnet test OrderInventory.slnx --configuration Release --no-build --verbosity normal
 
-      - name: Build Docker image
-        run: docker build -t orderinventory-api:test ./OrderInventory.Api
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./OrderInventory.Api
+          file: ./OrderInventory.Api/Dockerfile
+          push: ${{ github.event_name == 'push' }}
+          tags: |
+            ghcr.io/norannemad/orderinventory-api:latest
+            ghcr.io/norannemad/orderinventory-api:sha-${{ github.sha }}
