@@ -79,12 +79,16 @@ jobs:
     steps:
       - name: Validate Deployment Secrets
         id: check-secrets
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
-          if [ -z "${{ secrets.SSH_HOST }}" ] || [ -z "${{ secrets.SSH_USER }}" ] || [ -z "${{ secrets.SSH_KEY }}" ]; then
-            echo "configured=false" >> $GITHUB_OUTPUT
-            echo "::notice title=Deployment Staged::SSH_HOST, SSH_USER, or SSH_KEY is not configured in GitHub Secrets. Automated remote deployment skipped."
+          if [[ -n "$SSH_HOST" && -n "$SSH_USER" && -n "$SSH_KEY" ]]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
           else
-            echo "configured=true" >> $GITHUB_OUTPUT
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Deployment Staged::SSH_HOST, SSH_USER, or SSH_KEY is not configured in GitHub Secrets. Automated remote deployment skipped."
           fi
 
       - name: Checkout repository
@@ -123,18 +127,23 @@ jobs:
             docker compose up -d --remove-orphans
             docker image prune -f
 
-      - name: Verify Deployment Health
+      - name: Verify Deployment Health via SSH
         if: steps.check-secrets.outputs.configured == 'true'
-        run: |
-          echo "Verifying health endpoint on remote host..."
-          for i in {1..12}; do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.SSH_HOST }}:8080/health/ready || true)
-            if [ "$STATUS" = "200" ]; then
-              echo "Deployment verified! Health status: 200 OK"
-              exit 0
-            fi
-            echo "Waiting for service to become healthy... (attempt $i/12, status: $STATUS)"
-            sleep 5
-          done
-          echo "Health check failed after 60 seconds."
-          exit 1
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            echo "Verifying health endpoint on remote host..."
+            for i in {1..12}; do
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health/ready || true)
+              if [ "$STATUS" = "200" ]; then
+                echo "Deployment verified! Health status: 200 OK"
+                exit 0
+              fi
+              echo "Waiting for service to become healthy... (attempt $i/12, status: $STATUS)"
+              sleep 5
+            done
+            echo "Health check failed after 60 seconds."
+            exit 1
