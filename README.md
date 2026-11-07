@@ -1,6 +1,9 @@
 # Order Inventory Management API
 
-A robust RESTful Web API built with ASP.NET Core 10 for managing products, categories, inventory, and customer orders. The project includes authentication, authorization, reporting, automated testing, and Docker support.
+[![OrderInventory CI](https://github.com/noranNEmad/OrderInventory/actions/workflows/ci.yml/badge.svg)](https://github.com/noranNEmad/OrderInventory/actions/workflows/ci.yml)
+[![Docker Image](https://img.shields.io/badge/GHCR-orderinventory--api-blue?logo=docker)](https://github.com/noranNEmad/OrderInventory/pkgs/container/orderinventory-api)
+
+A robust RESTful Web API built with ASP.NET Core 10 for managing products, categories, inventory, and customer orders. The project features an automated CI/CD pipeline, JWT authentication, role-based authorization, reporting, automated testing, and Docker Compose deployment with Cloudflare Tunnel integration.
 
 ## Features
 
@@ -42,6 +45,22 @@ The solution is organized into:
 - **OrderInventory.Tests** — Unit and integration tests.
 - **Dockerfile** — Builds and runs the API container.
 - **docker-compose.yml** — Orchestrates the API and SQL Server containers.
+
+## CI/CD Pipeline & DevOps
+
+This repository includes a continuous integration and continuous delivery (CI/CD) workflow implemented with **GitHub Actions**:
+
+- **Continuous Integration (CI):**
+  - Restores dependencies and builds the solution in Release mode.
+  - Provisions a live **SQL Server 2022** service container with automated health checks.
+  - Executes **53 unit and integration tests** with isolated database transactions and zero parallel collision.
+- **Continuous Delivery (CD):**
+  - Containerizes the application using multi-stage Docker builds optimized for .NET 10.
+  - Automatically pushes versioned Docker images to **GitHub Container Registry (GHCR)**:
+    - `ghcr.io/norannemad/orderinventory-api:latest`
+    - `ghcr.io/norannemad/orderinventory-api:sha-<commit-sha>`
+- **Live Deployment & Tunneling:**
+  - Integrated with **Cloudflare Tunnel** (`cloudflare/cloudflared`) to expose the containerized API and Swagger UI securely via public HTTPS.
 
 ## Getting Started with Docker
 
