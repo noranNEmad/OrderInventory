@@ -1,9 +1,10 @@
 # Order Inventory Management API
 
 [![OrderInventory CI](https://github.com/noranNEmad/OrderInventory/actions/workflows/ci.yml/badge.svg)](https://github.com/noranNEmad/OrderInventory/actions/workflows/ci.yml)
+[![CodeQL Analysis](https://github.com/noranNEmad/OrderInventory/actions/workflows/codeql.yml/badge.svg)](https://github.com/noranNEmad/OrderInventory/actions/workflows/codeql.yml)
 [![Docker Image](https://img.shields.io/badge/GHCR-orderinventory--api-blue?logo=docker)](https://github.com/noranNEmad/OrderInventory/pkgs/container/orderinventory-api)
 
-A robust RESTful Web API built with ASP.NET Core 10 for managing products, categories, inventory, and customer orders. The project features an automated CI/CD pipeline, JWT authentication, role-based authorization, reporting, automated testing, and Docker Compose deployment with Cloudflare Tunnel integration.
+A robust RESTful Web API built with ASP.NET Core 10 for managing products, categories, inventory, and customer orders. The project features an automated CI/CD pipeline, DevSecOps security gating (CodeQL SAST + Trivy container scanning), Serilog structured logging, JWT authentication, role-based authorization, reporting, automated testing, and Docker Compose deployment with Cloudflare Tunnel integration.
 
 ## Features
 
@@ -17,10 +18,11 @@ A robust RESTful Web API built with ASP.NET Core 10 for managing products, categ
 - **Sales Reports:** Sales reporting and best-selling products.
 - **Pagination:** Paginated product and order retrieval.
 - **Validation & Error Handling:** Input validation and global exception middleware.
+- **Structured Logging & Observability:** Serilog structured logging with HTTP request tracking and contextual properties.
 - **Health Checks:** API liveness and database readiness endpoints.
 - **Database Migrations:** Entity Framework Core migrations.
 - **Demo Data Seeding:** Automatic creation of sample categories and products.
-- **Automated Tests:** Unit and integration tests.
+- **Automated Tests:** Unit and integration tests (53 automated tests).
 - **Docker Support:** Containerized API and SQL Server using Docker Compose.
 
 ## Technologies Used
@@ -32,10 +34,14 @@ A robust RESTful Web API built with ASP.NET Core 10 for managing products, categ
 - SQL Server
 - ASP.NET Core Identity
 - JWT Bearer Authentication
+- Serilog (Structured Logging & HTTP Request Logging)
 - NSwag / Swagger UI
 - xUnit
-- Docker
-- Docker Compose
+- Docker & Docker Compose
+- GitHub Actions (CI/CD)
+- GitHub Container Registry (GHCR)
+- Trivy (Container Vulnerability Scanning)
+- GitHub CodeQL (SAST Code Scanning)
 
 ## Architecture
 
@@ -46,19 +52,24 @@ The solution is organized into:
 - **Dockerfile** — Builds and runs the API container.
 - **docker-compose.yml** — Orchestrates the API and SQL Server containers.
 
-## CI/CD Pipeline & DevOps
+## CI/CD Pipeline & DevSecOps
 
-This repository includes a continuous integration and continuous delivery (CI/CD) workflow implemented with **GitHub Actions**:
+This repository includes a production-grade CI/CD and DevSecOps pipeline implemented with **GitHub Actions**:
 
 - **Continuous Integration (CI):**
   - Restores dependencies and builds the solution in Release mode.
   - Provisions a live **SQL Server 2022** service container with automated health checks.
   - Executes **53 unit and integration tests** with isolated database transactions and zero parallel collision.
+- **DevSecOps & Security Scanning:**
+  - **Static Analysis (SAST):** GitHub CodeQL analyzes C# source code on push, PR, and schedule for security vulnerabilities.
+  - **Container Vulnerability Scanning:** Aqua Security Trivy scans the Docker image before publishing, enforcing a strict security gate on `CRITICAL` CVEs.
 - **Continuous Delivery (CD):**
   - Containerizes the application using multi-stage Docker builds optimized for .NET 10.
   - Automatically pushes versioned Docker images to **GitHub Container Registry (GHCR)**:
     - `ghcr.io/norannemad/orderinventory-api:latest`
     - `ghcr.io/norannemad/orderinventory-api:sha-<commit-sha>`
+- **Automated Remote Deployment (Staged):**
+  - Automated deployment workflow over SSH/SCP with configuration safeguards and localhost health check verification.
 - **Live Deployment & Tunneling:**
   - Integrated with **Cloudflare Tunnel** (`cloudflare/cloudflared`) to expose the containerized API and Swagger UI securely via public HTTPS.
 

@@ -8,12 +8,19 @@ using OrderInventory.Api.Identity;
 using OrderInventory.Api.Configuration;
 using OrderInventory.Api.Services;
 using System.Text;
+using Serilog;
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Serilog Structured Logging
+builder.Host.UseSerilog((context, services, configuration) => configuration
+    .ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext());
 
 // Controllers
 builder.Services.AddControllers();
@@ -125,6 +132,7 @@ builder.Services.AddOpenApiDocument(options =>
 var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseSerilogRequestLogging();
 
 
 
