@@ -69,3 +69,48 @@ jobs:
           tags: |
             ghcr.io/norannemad/orderinventory-api:latest
             ghcr.io/norannemad/orderinventory-api:sha-${{ github.sha }}
+
+  deploy:
+    name: Automated Production Deployment
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Check Deployment Secrets
+        id: check-secrets
+        run: |
+          if [ -z "${{ secrets.SSH_HOST }}" ]; then
+            echo "configured=false" >> $GITHUB_OUTPUT
+            echo "::notice ::SSH_HOST is not set in GitHub Secrets. Configure SSH_HOST, SSH_USER, and SSH_KEY to enable remote automated deployment."
+          else
+            echo "configured=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout repository
+        if: steps.check-secrets.outputs.configured == 'true'
+        uses: actions/checkout@v4
+
+      - name: Copy docker-compose to server
+        if: steps.check-secrets.outputs.configured == 'true'
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "docker-compose.yml"
+          target: "/opt/orderinventory"
+
+      - name: Deploy on Remote Server via SSH
+        if: steps.check-secrets.outputs.configured == 'true'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /opt/orderinventory
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker compose pull
+            docker compose up -d --remove-orphans
+            docker image prune -f
