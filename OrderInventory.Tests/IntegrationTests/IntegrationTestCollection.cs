@@ -6,3 +6,4 @@ namespace OrderInventory.Tests.IntegrationTests;
 public class IntegrationTestCollection : ICollectionFixture<CustomWebApplicationFactory>
 {
 }
+
