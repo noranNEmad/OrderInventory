@@ -21,9 +21,7 @@ services:
       start_period: 30s
 
   api:
-    build:
-      context: ./OrderInventory.Api
-      dockerfile: Dockerfile
+    image: ghcr.io/norannemad/orderinventory-api:latest
     container_name: orderinventory-api
     ports:
       - "8080:8080"
