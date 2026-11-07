@@ -43,30 +43,39 @@ public class CustomWebApplicationFactory
         });
     }
 
+    private static readonly object _dbInitLock = new();
+    private static bool _dbInitialized = false;
+
     protected override IHost CreateHost(IHostBuilder builder)
     {
         var host = builder.Build();
 
-        using (var scope = host.Services.CreateScope())
+        lock (_dbInitLock)
         {
-            var services = scope.ServiceProvider;
+            if (!_dbInitialized)
+            {
+                using var scope = host.Services.CreateScope();
+                var services = scope.ServiceProvider;
 
-            var dbContext =
-                services.GetRequiredService<AppDbContext>();
+                var dbContext =
+                    services.GetRequiredService<AppDbContext>();
 
-            // Apply database migrations
-            dbContext.Database.Migrate();
+                // Apply database migrations
+                dbContext.Database.Migrate();
 
-            var userManager =
-                services.GetRequiredService<UserManager<ApplicationUser>>();
+                var userManager =
+                    services.GetRequiredService<UserManager<ApplicationUser>>();
 
-            var roleManager =
-                services.GetRequiredService<RoleManager<IdentityRole>>();
+                var roleManager =
+                    services.GetRequiredService<RoleManager<IdentityRole>>();
 
-            // Seed test Admin user and role
-            SeedTestUserAsync(userManager, roleManager)
-                .GetAwaiter()
-                .GetResult();
+                // Seed test Admin user and role
+                SeedTestUserAsync(userManager, roleManager)
+                    .GetAwaiter()
+                    .GetResult();
+
+                _dbInitialized = true;
+            }
         }
 
         host.Start();

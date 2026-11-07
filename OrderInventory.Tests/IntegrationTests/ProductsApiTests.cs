@@ -8,8 +8,8 @@ using OrderInventory.Api.DTOs;
 
 namespace OrderInventory.Tests.IntegrationTests;
 
+[Collection("IntegrationTests")]
 public class ProductsApiTests :
-    IClassFixture<CustomWebApplicationFactory>,
     IAsyncLifetime
 {
     private readonly HttpClient _client;
