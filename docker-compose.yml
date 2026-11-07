@@ -35,6 +35,13 @@ services:
       sqlserver:
         condition: service_healthy
 
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: orderinventory-tunnel
+    command: tunnel --url http://api:8080
+    depends_on:
+      - api
+
 volumes:
   orderinventory-sql-data:
     external: true
