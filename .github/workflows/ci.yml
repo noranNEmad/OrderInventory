@@ -49,8 +49,21 @@ jobs:
           ConnectionStrings__TestConnection: "Server=localhost,1433;Database=OrderInventoryIntegrationTestDb;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True;"
         run: dotnet test OrderInventory.slnx --configuration Release --no-build --verbosity normal
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Build Docker image
+        run: |
+          docker build -t ghcr.io/norannemad/orderinventory-api:latest \
+                       -t ghcr.io/norannemad/orderinventory-api:sha-${{ github.sha }} \
+                       ./OrderInventory.Api
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: 'ghcr.io/norannemad/orderinventory-api:latest'
+          format: 'table'
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
 
       - name: Log in to GHCR
         if: github.event_name == 'push'
@@ -60,15 +73,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./OrderInventory.Api
-          file: ./OrderInventory.Api/Dockerfile
-          push: ${{ github.event_name == 'push' }}
-          tags: |
-            ghcr.io/norannemad/orderinventory-api:latest
-            ghcr.io/norannemad/orderinventory-api:sha-${{ github.sha }}
+      - name: Push Docker image to GHCR
+        if: github.event_name == 'push'
+        run: |
+          docker push ghcr.io/norannemad/orderinventory-api:latest
+          docker push ghcr.io/norannemad/orderinventory-api:sha-${{ github.sha }}
 
   deploy:
     name: Remote Deployment (SSH)
