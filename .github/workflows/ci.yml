@@ -48,3 +48,6 @@ jobs:
           Jwt__Key: "ThisIsATestSecretKeyForIntegrationTestsOnly123456"
           ConnectionStrings__TestConnection: "Server=localhost,1433;Database=OrderInventoryIntegrationTestDb;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True;"
         run: dotnet test OrderInventory.slnx --configuration Release --no-build --verbosity normal
+
+      - name: Build Docker image
+        run: docker build -t orderinventory-api:test ./OrderInventory.Api

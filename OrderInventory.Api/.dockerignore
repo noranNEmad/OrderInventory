@@ -7,4 +7,5 @@
 .gitignore
 *.user
 *.suo
+.env
 appsettings.Development.json
