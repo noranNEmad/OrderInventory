@@ -30,14 +30,16 @@ public class CustomWebApplicationFactory
             config.AddInMemoryCollection(testSettings);
         });
 
-        builder.ConfigureServices(services =>
+        builder.ConfigureServices((context, services) =>
         {
             services.RemoveAll<AppDbContext>();
             services.RemoveAll<DbContextOptions<AppDbContext>>();
 
+            var connectionString = context.Configuration.GetConnectionString("TestConnection")
+                ?? "Server=localhost;Database=OrderInventoryIntegrationTestDb;Trusted_Connection=True;TrustServerCertificate=True;";
+
             services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(
-                    "Server=localhost;Database=OrderInventoryIntegrationTestDb;Trusted_Connection=True;TrustServerCertificate=True;"));
+                options.UseSqlServer(connectionString));
         });
     }
 
