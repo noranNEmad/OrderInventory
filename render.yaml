@@ -12,6 +12,8 @@ services:
         value: Production
       - key: Database__RunMigrations
         value: "true"
+      - key: Swagger__Enabled
+        value: "true"
       - key: Jwt__Issuer
         value: OrderInventory.Api
       - key: Jwt__Audience

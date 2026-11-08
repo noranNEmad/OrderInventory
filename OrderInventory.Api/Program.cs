@@ -195,7 +195,7 @@ app.UseRateLimiter();
 
 
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || builder.Configuration.GetValue<bool>("Swagger:Enabled", true))
 {
     app.UseOpenApi();
 
