@@ -3,11 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using OrderInventory.Api.Data;
 using OrderInventory.Api.DTOs.Reports;
 using OrderInventory.Api.Enums;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace OrderInventory.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[EnableRateLimiting("GeneralPolicy")]
 public class ReportsController : ControllerBase
 {
     private readonly AppDbContext _context;

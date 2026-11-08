@@ -4,11 +4,13 @@ using OrderInventory.Api.DTOs.Auth;
 using OrderInventory.Api.Identity;
 using OrderInventory.Api.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace OrderInventory.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[EnableRateLimiting("AuthPolicy")]
 public class AuthController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;

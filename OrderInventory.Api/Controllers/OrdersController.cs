@@ -5,11 +5,13 @@ using OrderInventory.Api.Data;
 using OrderInventory.Api.DTOs;
 using OrderInventory.Api.Models;
 using OrderInventory.Api.Enums;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace OrderInventory.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[EnableRateLimiting("GeneralPolicy")]
 public class OrdersController : ControllerBase
 {
     private readonly AppDbContext _context;

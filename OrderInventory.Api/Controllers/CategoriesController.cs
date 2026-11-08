@@ -4,11 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using OrderInventory.Api.Data;
 using OrderInventory.Api.DTOs;
 using OrderInventory.Api.Models;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace OrderInventory.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[EnableRateLimiting("GeneralPolicy")]
 public class CategoriesController : ControllerBase
 {
     private readonly AppDbContext _context;

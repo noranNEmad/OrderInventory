@@ -24,7 +24,9 @@ public class CustomWebApplicationFactory
             {
                 ["Jwt:Key"] = "ThisIsATestSecretKeyForIntegrationTestsOnly123456",
                 ["Jwt:Issuer"] = "OrderInventory.Tests",
-                ["Jwt:Audience"] = "OrderInventory.Tests"
+                ["Jwt:Audience"] = "OrderInventory.Tests",
+                ["RateLimiting:AuthPermitLimit"] = "1000",
+                ["RateLimiting:GeneralPermitLimit"] = "1000"
             };
 
             config.AddInMemoryCollection(testSettings);

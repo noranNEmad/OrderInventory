@@ -18,11 +18,12 @@ A robust RESTful Web API built with ASP.NET Core 10 for managing products, categ
 - **Sales Reports:** Sales reporting and best-selling products.
 - **Pagination:** Paginated product and order retrieval.
 - **Validation & Error Handling:** Input validation and global exception middleware.
+- **Rate Limiting & DoS Protection:** Partition-based rate limiting per client IP (strict policies for Auth endpoints and general policies for standard API endpoints).
 - **Structured Logging & Observability:** Serilog structured logging with HTTP request tracking and contextual properties.
 - **Health Checks:** API liveness and database readiness endpoints.
 - **Database Migrations:** Entity Framework Core migrations.
 - **Demo Data Seeding:** Automatic creation of sample categories and products.
-- **Automated Tests:** Unit and integration tests (53 automated tests).
+- **Automated Tests:** Unit and integration tests (54 automated tests).
 - **Docker Support:** Containerized API and SQL Server using Docker Compose.
 
 ## Technologies Used
@@ -59,7 +60,7 @@ This repository includes a production-grade CI/CD and DevSecOps pipeline impleme
 - **Continuous Integration (CI):**
   - Restores dependencies and builds the solution in Release mode.
   - Provisions a live **SQL Server 2022** service container with automated health checks.
-  - Executes **53 unit and integration tests** with isolated database transactions and zero parallel collision.
+  - Executes **54 unit and integration tests** with isolated database transactions and zero parallel collision.
 - **DevSecOps & Security Scanning:**
   - **Static Analysis (SAST):** GitHub CodeQL analyzes C# source code on push, PR, and schedule for security vulnerabilities.
   - **Container Vulnerability Scanning:** Aqua Security Trivy scans the Docker image before publishing, enforcing a strict security gate on `CRITICAL` CVEs.

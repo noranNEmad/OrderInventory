@@ -9,6 +9,8 @@ using OrderInventory.Api.Configuration;
 using OrderInventory.Api.Services;
 using System.Text;
 using Serilog;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -24,6 +26,61 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
 
 // Controllers
 builder.Services.AddControllers();
+
+// Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.ContentType = "application/json";
+        await context.HttpContext.Response.WriteAsync(
+            "{\"statusCode\":429,\"message\":\"Too many requests. Please try again later.\"}",
+            cancellationToken: token);
+    };
+
+    options.AddPolicy("AuthPolicy", httpContext =>
+    {
+        var config = httpContext.RequestServices.GetRequiredService<IConfiguration>();
+        var limit = config.GetValue<int>("RateLimiting:AuthPermitLimit", 20);
+        var window = config.GetValue<int>("RateLimiting:AuthWindowSeconds", 60);
+
+        var clientKey = httpContext.Connection.RemoteIpAddress?.ToString()
+            ?? httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault()
+            ?? "anonymous_auth";
+
+        return RateLimitPartition.GetFixedWindowLimiter(
+            clientKey,
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = limit,
+                Window = TimeSpan.FromSeconds(window),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            });
+    });
+
+    options.AddPolicy("GeneralPolicy", httpContext =>
+    {
+        var config = httpContext.RequestServices.GetRequiredService<IConfiguration>();
+        var limit = config.GetValue<int>("RateLimiting:GeneralPermitLimit", 100);
+        var window = config.GetValue<int>("RateLimiting:GeneralWindowSeconds", 60);
+
+        var clientKey = httpContext.Connection.RemoteIpAddress?.ToString()
+            ?? httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault()
+            ?? "anonymous_general";
+
+        return RateLimitPartition.GetFixedWindowLimiter(
+            clientKey,
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = limit,
+                Window = TimeSpan.FromSeconds(window),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            });
+    });
+});
 
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -133,6 +190,7 @@ var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseSerilogRequestLogging();
+app.UseRateLimiter();
 
 
 
