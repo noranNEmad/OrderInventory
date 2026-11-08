@@ -142,6 +142,19 @@ The SQL Server data is stored in the persistent Docker volume `orderinventory-sq
 
 For detailed request and response schemas, use Swagger UI.
 
+## Postman Collection & API Testing
+
+A complete Postman Collection and environments are provided in the [`postman/`](./postman/) directory for easy testing:
+
+- **Collection:** [`postman/OrderInventory.postman_collection.json`](./postman/OrderInventory.postman_collection.json)
+- **Local Environment:** [`postman/OrderInventory.Local.postman_environment.json`](./postman/OrderInventory.Local.postman_environment.json) (`http://localhost:8080`)
+- **Live Environment:** [`postman/OrderInventory.Live.postman_environment.json`](./postman/OrderInventory.Live.postman_environment.json) (`https://leeds-andreas-nickel-listing.trycloudflare.com`)
+
+### Features of the Postman Setup:
+- **7 Organized Request Folders:** Health Checks, Authentication, Categories, Products (Paginated & Filtered), Orders & Inventory, Reports, and Security/Rate Limiting.
+- **Automated JWT Management:** Sending `POST /api/auth/login` automatically extracts the returned JWT token and saves it into the `{{jwt_token}}` variable for subsequent authorized requests (`/api/auth/me`, `/api/products` create/update, etc.).
+- **Rate Limiting Testing:** Includes a preconfigured auth request to easily test and trigger `429 Too Many Requests`.
+
 ## Testing
 
 The project includes unit tests and integration tests using xUnit.
@@ -152,7 +165,7 @@ Run the tests:
 dotnet test
 ```
 
-**Latest test result:** 53 tests passed, 0 failed.
+**Latest test result:** 54 tests passed, 0 failed.
 
 ## Configuration
 

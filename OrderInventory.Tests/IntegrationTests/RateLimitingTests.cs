@@ -53,3 +53,4 @@ public class RateLimitingTests : IClassFixture<CustomWebApplicationFactory>
         Assert.Equal(HttpStatusCode.TooManyRequests, response3.StatusCode);
     }
 }
+
