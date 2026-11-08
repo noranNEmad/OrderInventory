@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: orderinventory-api
+    runtime: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    region: frankfurt
+    branch: main
+    autoDeploy: true
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: Database__RunMigrations
+        value: "true"
+      - key: Jwt__Issuer
+        value: OrderInventory.Api
+      - key: Jwt__Audience
+        value: OrderInventory.Client
+      - key: Jwt__Key
+        generateValue: true
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
+

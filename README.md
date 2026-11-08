@@ -3,6 +3,7 @@
 [![OrderInventory CI](https://github.com/noranNEmad/OrderInventory/actions/workflows/ci.yml/badge.svg)](https://github.com/noranNEmad/OrderInventory/actions/workflows/ci.yml)
 [![CodeQL Analysis](https://github.com/noranNEmad/OrderInventory/actions/workflows/codeql.yml/badge.svg)](https://github.com/noranNEmad/OrderInventory/actions/workflows/codeql.yml)
 [![Docker Image](https://img.shields.io/badge/GHCR-orderinventory--api-blue?logo=docker)](https://github.com/noranNEmad/OrderInventory/pkgs/container/orderinventory-api)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/noranNEmad/OrderInventory)
 
 A robust RESTful Web API built with ASP.NET Core 10 for managing products, categories, inventory, and customer orders. The project features an automated CI/CD pipeline, DevSecOps security gating (CodeQL SAST + Trivy container scanning), Serilog structured logging, JWT authentication, role-based authorization, reporting, automated testing, and Docker Compose deployment with Cloudflare Tunnel integration.
 
